@@ -921,7 +921,7 @@ def _align_lyrics_in_child_process(
         raise _JobCanceled()
 
     exitcode = getattr(process, "exitcode", 0)
-    if exitcode not in (0, None):
+    if exitcode not in (0, None) and not aligned_path.exists():
         detail = (
             error_path.read_text(encoding="utf-8").strip()
             if error_path.exists()
