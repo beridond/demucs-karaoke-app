@@ -879,9 +879,10 @@ def _align_lyrics_in_child_process(
     error_path = output_dir / "alignment_error.txt"
     if error_path.exists():
         error_path.unlink()
-    progress_queue = multiprocessing.Queue()
+    context = multiprocessing.get_context("spawn")
+    progress_queue = context.Queue()
 
-    process = multiprocessing.Process(
+    process = context.Process(
         target=_alignment_child_entry,
         args=(config, str(vocals_path), str(output_dir), str(error_path), progress_queue),
         daemon=True,
@@ -921,7 +922,7 @@ def _align_lyrics_in_child_process(
         raise _JobCanceled()
 
     exitcode = getattr(process, "exitcode", 0)
-    if exitcode not in (0, None) and not aligned_path.exists():
+    if exitcode not in (0, None):
         detail = (
             error_path.read_text(encoding="utf-8").strip()
             if error_path.exists()
